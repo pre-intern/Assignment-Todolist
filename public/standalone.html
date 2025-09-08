@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow - Smart To-Do for Students</title>
+    <meta name="description" content="Procrastination-aware task manager designed for Vietnamese university students">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: 259 94% 51%;
+            --primary-foreground: 0 0% 100%;
+            --secondary: 240 5% 96%;
+            --secondary-foreground: 240 6% 10%;
+            --destructive: 0 84% 60%;
+            --destructive-foreground: 0 0% 98%;
+            --accent: 240 5% 96%;
+            --accent-foreground: 240 6% 10%;
+            --border: 240 6% 90%;
+            --background: 0 0% 100%;
+            --foreground: 240 10% 4%;
+            --muted: 240 5% 96%;
+            --muted-foreground: 240 4% 46%;
+            --card: 0 0% 100%;
+            --card-foreground: 240 10% 4%;
+            --gradient-primary: linear-gradient(135deg, hsl(259, 94%, 51%), hsl(259, 94%, 61%));
+            --gradient-danger: linear-gradient(135deg, hsl(0, 84%, 60%), hsl(0, 84%, 70%));
+            --gradient-warning: linear-gradient(135deg, hsl(25, 95%, 53%), hsl(25, 95%, 63%));
+            --gradient-success: linear-gradient(135deg, hsl(142, 76%, 36%), hsl(142, 76%, 46%));
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --radius: 0.5rem;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(to bottom right, #f8fafc, #e2e8f0);
+            color: hsl(var(--foreground));
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: hsl(var(--muted-foreground));
+            font-size: 1.125rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid hsl(var(--border));
+            padding-bottom: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: hsl(var(--muted-foreground));
+            transition: all 0.3s;
+            border-radius: var(--radius);
+        }
+
+        .tab:hover {
+            background: hsl(var(--secondary));
+        }
+
+        .tab.active {
+            color: hsl(var(--primary));
+            background: hsl(var(--primary) / 0.1);
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .task-form {
+            background: hsl(var(--card));
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+        }
+
+        input, select, textarea {
+            padding: 0.5rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: calc(var(--radius) - 2px);
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: hsl(var(--primary));
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: calc(var(--radius) - 2px);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+
+        .btn-primary:hover {
+            background: hsl(var(--primary) / 0.9);
+        }
+
+        .btn-secondary {
+            background: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+        }
+
+        .btn-danger {
+            background: hsl(var(--destructive));
+            color: hsl(var(--destructive-foreground));
+        }
+
+        .task-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .task-card {
+            background: hsl(var(--card));
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .task-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .task-card.high-urgency {
+            border-color: hsl(var(--destructive));
+            background: hsl(var(--destructive) / 0.05);
+        }
+
+        .task-card.medium-urgency {
+            border-color: hsl(25, 95%, 53%);
+            background: hsl(25, 95%, 53% / 0.05);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .task-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .task-priority {
+            padding: 0.25rem 0.5rem;
+            border-radius: calc(var(--radius) - 4px);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: hsl(var(--destructive) / 0.1);
+            color: hsl(var(--destructive));
+        }
+
+        .priority-medium {
+            background: hsl(25, 95%, 53% / 0.1);
+            color: hsl(25, 95%, 53%);
+        }
+
+        .priority-low {
+            background: hsl(142, 76%, 36% / 0.1);
+            color: hsl(142, 76%, 36%);
+        }
+
+        .task-description {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 1rem;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .timer {
+            background: hsl(var(--card));
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            margin: 1rem 0;
+            color: hsl(var(--primary));
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: hsl(var(--card));
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: hsl(var(--foreground));
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid hsl(var(--border));
+            border-radius: calc(var(--radius) - 4px);
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            position: relative;
+            background: hsl(var(--card));
+        }
+
+        .calendar-day.has-tasks {
+            background: hsl(var(--primary) / 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">StudyFlow</h1>
+            <p class="subtitle">Beat Procrastination, Ace Your Studies 🎯</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchView('focus')">🎯 Focus Mode</button>
+            <button class="tab" onclick="switchView('calendar')">📅 Calendar</button>
+            <button class="tab" onclick="switchView('stats')">📊 Analytics</button>
+        </div>
+
+        <!-- Focus Mode View -->
+        <div id="focus-view" class="view active">
+            <!-- Timer -->
+            <div class="timer" id="timer-section" style="display: none;">
+                <h3>Active Task Timer</h3>
+                <div class="timer-display" id="timer-display">00:00:00</div>
+                <p id="timer-task-name"></p>
+                <button class="btn btn-danger" onclick="stopTimer()">Stop Timer</button>
+            </div>
+
+            <!-- Task Form -->
+            <div class="task-form">
+                <h3 style="margin-bottom: 1rem;">Add New Task</h3>
+                <form id="task-form" onsubmit="addTask(event)">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="task-title">Task Title</label>
+                            <input type="text" id="task-title" required placeholder="e.g., Complete Math Assignment">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="task-priority">Priority</label>
+                            <select id="task-priority" required>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="task-estimated">Estimated Hours</label>
+                            <input type="number" id="task-estimated" min="0.5" step="0.5" required placeholder="2.5">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="task-deadline">Deadline</label>
+                            <input type="datetime-local" id="task-deadline" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="task-category">Category</label>
+                            <select id="task-category">
+                                <option value="assignment">Assignment</option>
+                                <option value="exam">Exam</option>
+                                <option value="project">Project</option>
+                                <option value="reading">Reading</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="task-description">Description (Optional)</label>
+                            <textarea id="task-description" placeholder="Add any notes or details..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Add Task</button>
+                </form>
+            </div>
+
+            <!-- Task List -->
+            <div id="task-list" class="task-list"></div>
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <p>No tasks yet! Add your first task to get started 🚀</p>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div id="calendar-view" class="view">
+            <h2 style="margin-bottom: 1.5rem;">Calendar View</h2>
+            <div id="calendar-content"></div>
+        </div>
+
+        <!-- Stats View -->
+        <div id="stats-view" class="view">
+            <h2 style="margin-bottom: 1.5rem;">Your Productivity Analytics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Tasks</div>
+                    <div class="stat-value" id="stat-total">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Completed</div>
+                    <div class="stat-value" id="stat-completed">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Procrastination Factor</div>
+                    <div class="stat-value" id="stat-procrastination">1.0x</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Average Completion Time</div>
+                    <div class="stat-value" id="stat-avg-time">0h</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Task Manager
+        let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        let activeTimer = null;
+        let timerStartTime = null;
+        let activeTaskId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTasks();
+            updateStats();
+            renderCalendar();
+        });
+
+        // Switch views
+        function switchView(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(`${view}-view`).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (view === 'stats') updateStats();
+            if (view === 'calendar') renderCalendar();
+        }
+
+        // Add task
+        function addTask(event) {
+            event.preventDefault();
+            
+            const task = {
+                id: Date.now().toString(),
+                title: document.getElementById('task-title').value,
+                description: document.getElementById('task-description').value,
+                priority: document.getElementById('task-priority').value,
+                estimatedHours: parseFloat(document.getElementById('task-estimated').value),
+                deadline: document.getElementById('task-deadline').value,
+                category: document.getElementById('task-category').value,
+                completed: false,
+                createdAt: new Date().toISOString(),
+                actualHours: 0,
+                timerSessions: []
+            };
+            
+            tasks.push(task);
+            saveTasks();
+            renderTasks();
+            updateStats();
+            
+            // Reset form
+            document.getElementById('task-form').reset();
+        }
+
+        // Calculate urgency
+        function calculateUrgency(task) {
+            if (task.completed) return 0;
+            
+            const now = new Date();
+            const deadline = new Date(task.deadline);
+            const hoursUntilDeadline = (deadline - now) / (1000 * 60 * 60);
+            
+            const procrastinationFactor = calculateProcrastinationFactor();
+            const adjustedEstimate = task.estimatedHours * procrastinationFactor;
+            
+            if (hoursUntilDeadline <= adjustedEstimate) return 3; // Critical
+            if (hoursUntilDeadline <= adjustedEstimate * 2) return 2; // High
+            if (hoursUntilDeadline <= adjustedEstimate * 4) return 1; // Medium
+            return 0; // Low
+        }
+
+        // Calculate procrastination factor
+        function calculateProcrastinationFactor() {
+            const completedTasks = tasks.filter(t => t.completed && t.actualHours > 0);
+            if (completedTasks.length === 0) return 1.5;
+            
+            const totalEstimated = completedTasks.reduce((sum, t) => sum + t.estimatedHours, 0);
+            const totalActual = completedTasks.reduce((sum, t) => sum + t.actualHours, 0);
+            
+            return totalActual / totalEstimated || 1.5;
+        }
+
+        // Render tasks
+        function renderTasks() {
+            const taskList = document.getElementById('task-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            const activeTasks = tasks.filter(t => !t.completed);
+            
+            if (activeTasks.length === 0) {
+                taskList.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // Sort by urgency
+            activeTasks.sort((a, b) => {
+                const urgencyA = calculateUrgency(a);
+                const urgencyB = calculateUrgency(b);
+                return urgencyB - urgencyA;
+            });
+            
+            taskList.innerHTML = activeTasks.map(task => {
+                const urgency = calculateUrgency(task);
+                const urgencyClass = urgency === 3 ? 'high-urgency' : urgency === 2 ? 'medium-urgency' : '';
+                const deadline = new Date(task.deadline);
+                const timeLeft = getTimeLeft(deadline);
+                
+                return `
+                    <div class="task-card ${urgencyClass}">
+                        <div class="task-header">
+                            <h3 class="task-title">${task.title}</h3>
+                            <span class="task-priority priority-${task.priority}">${task.priority}</span>
+                        </div>
+                        ${task.description ? `<p class="task-description">${task.description}</p>` : ''}
+                        <div class="task-meta">
+                            <span>⏰ ${timeLeft}</span>
+                            <span>📚 ${task.category}</span>
+                            <span>⏱️ Est: ${task.estimatedHours}h</span>
+                            ${task.actualHours > 0 ? `<span>✅ Actual: ${task.actualHours.toFixed(1)}h</span>` : ''}
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-primary" onclick="startTimer('${task.id}')">Start Timer</button>
+                            <button class="btn btn-secondary" onclick="completeTask('${task.id}')">Complete</button>
+                            <button class="btn btn-danger" onclick="deleteTask('${task.id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Get time left string
+        function getTimeLeft(deadline) {
+            const now = new Date();
+            const diff = deadline - now;
+            
+            if (diff < 0) return 'Overdue!';
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(hours / 24);
+            
+            if (days > 0) return `${days}d ${hours % 24}h left`;
+            return `${hours}h left`;
+        }
+
+        // Timer functions
+        function startTimer(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            // Stop any existing timer
+            if (activeTimer) stopTimer();
+            
+            activeTaskId = taskId;
+            timerStartTime = Date.now();
+            
+            document.getElementById('timer-section').style.display = 'block';
+            document.getElementById('timer-task-name').textContent = task.title;
+            
+            activeTimer = setInterval(updateTimerDisplay, 1000);
+            updateTimerDisplay();
+        }
+
+        function stopTimer() {
+            if (!activeTimer) return;
+            
+            clearInterval(activeTimer);
+            
+            // Save timer session
+            const task = tasks.find(t => t.id === activeTaskId);
+            if (task && timerStartTime) {
+                const duration = (Date.now() - timerStartTime) / (1000 * 60 * 60); // hours
+                task.actualHours += duration;
+                task.timerSessions.push({
+                    start: timerStartTime,
+                    end: Date.now(),
+                    duration
+                });
+                saveTasks();
+                renderTasks();
+            }
+            
+            activeTimer = null;
+            timerStartTime = null;
+            activeTaskId = null;
+            document.getElementById('timer-section').style.display = 'none';
+        }
+
+        function updateTimerDisplay() {
+            if (!timerStartTime) return;
+            
+            const elapsed = Date.now() - timerStartTime;
+            const hours = Math.floor(elapsed / (1000 * 60 * 60));
+            const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
+            
+            document.getElementById('timer-display').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Task actions
+        function completeTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = true;
+                task.completedAt = new Date().toISOString();
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const procrastination = calculateProcrastinationFactor();
+            
+            const completedWithTime = tasks.filter(t => t.completed && t.actualHours > 0);
+            const avgTime = completedWithTime.length > 0 
+                ? completedWithTime.reduce((sum, t) => sum + t.actualHours, 0) / completedWithTime.length
+                : 0;
+            
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-completed').textContent = completed;
+            document.getElementById('stat-procrastination').textContent = procrastination.toFixed(1) + 'x';
+            document.getElementById('stat-avg-time').textContent = avgTime.toFixed(1) + 'h';
+        }
+
+        // Render calendar
+        function renderCalendar() {
+            const calendarContent = document.getElementById('calendar-content');
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            
+            let html = '<div class="calendar-grid">';
+            
+            // Day headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                html += `<div style="font-weight: bold; text-align: center;">${day}</div>`;
+            });
+            
+            // Empty cells for days before month starts
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                html += '<div></div>';
+            }
+            
+            // Days of month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentYear, currentMonth, day);
+                const dateStr = date.toISOString().split('T')[0];
+                
+                const dayTasks = tasks.filter(t => {
+                    const taskDate = new Date(t.deadline).toISOString().split('T')[0];
+                    return taskDate === dateStr;
+                });
+                
+                const hasHighPriority = dayTasks.some(t => t.priority === 'high' && !t.completed);
+                const taskCount = dayTasks.filter(t => !t.completed).length;
+                
+                html += `
+                    <div class="calendar-day ${taskCount > 0 ? 'has-tasks' : ''}" 
+                         style="${hasHighPriority ? 'border-color: hsl(var(--destructive));' : ''}">
+                        <div>${day}</div>
+                        ${taskCount > 0 ? `<div style="font-size: 0.75rem; margin-top: 0.25rem;">${taskCount} task${taskCount > 1 ? 's' : ''}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            calendarContent.innerHTML = html;
+        }
+
+        // Save tasks
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+    </script>
+</body>
+</html>
