@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Task, TaskStats } from '@/types/task';
 import { TaskCard } from '@/components/TaskCard';
 import { TaskForm } from '@/components/TaskForm';
 import { TaskTimer } from '@/components/TaskTimer';
 import { CalendarView } from '@/components/CalendarView';
 import { StatsView } from '@/components/StatsView';
+import { RestReminder } from '@/components/RestReminder';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -18,7 +19,8 @@ import {
   Calendar,
   BarChart3,
   ListTodo,
-  Zap
+  Zap,
+  Mail
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Congratulations } from '@/components/Congratulations';
@@ -32,6 +34,9 @@ export default function Index() {
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [activeTimer, setActiveTimer] = useState<Task | undefined>();
   const [showCongrats, setShowCongrats] = useState(false);
+  const [showRestReminder, setShowRestReminder] = useState(false);
+  const workStartTimeRef = useRef<number | null>(null);
+  const taskCountRef = useRef<number>(0);
   
   // Load tasks on mount
   useEffect(() => {
@@ -78,6 +83,23 @@ export default function Index() {
         const updatedTasks = tasks.map(t => t.id === id ? updated : t);
         setTasks(updatedTasks);
         setActiveTimer(updated);
+        
+        // Track work session for rest reminders
+        if (!workStartTimeRef.current) {
+          workStartTimeRef.current = Date.now();
+        }
+        taskCountRef.current++;
+        
+        // Check if user has been working for more than an hour
+        setTimeout(() => {
+          const workDuration = Date.now() - (workStartTimeRef.current || Date.now());
+          if (workDuration > 60 * 60 * 1000 && taskCountRef.current >= 1) {
+            setShowRestReminder(true);
+            workStartTimeRef.current = null;
+            taskCountRef.current = 0;
+          }
+        }, 60 * 60 * 1000); // Check after 1 hour
+        
         toast.success('Timer started!');
       }
     }
@@ -158,6 +180,17 @@ export default function Index() {
                   className="pl-9 w-64 bg-input"
                 />
               </div>
+              
+              <Button 
+                variant="outline"
+                className="border-blue-500/50 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+                onClick={() => {
+                  toast.info('Gmail login coming soon! Please enable Supabase first.');
+                }}
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Login with Gmail
+              </Button>
               
               <Button 
                 onClick={() => {
@@ -313,6 +346,12 @@ export default function Index() {
       <Congratulations 
         show={showCongrats} 
         onClose={() => setShowCongrats(false)} 
+      />
+      
+      {/* Rest Reminder Dialog */}
+      <RestReminder
+        show={showRestReminder}
+        onClose={() => setShowRestReminder(false)}
       />
     </div>
   );

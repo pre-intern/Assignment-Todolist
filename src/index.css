@@ -154,3 +154,79 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Gradient Backgrounds */
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .bg-gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  
+  .bg-gradient-danger {
+    background: var(--gradient-danger);
+  }
+  
+  .bg-gradient-success {
+    background: var(--gradient-success);
+  }
+  
+  .bg-gradient-warning {
+    background: var(--gradient-warning);
+  }
+  
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+  
+  /* Priority Backgrounds */
+  .bg-priority-critical {
+    background-color: hsl(var(--priority-critical));
+  }
+  
+  .bg-priority-high {
+    background-color: hsl(var(--priority-high));
+  }
+  
+  .bg-priority-medium {
+    background-color: hsl(var(--priority-medium));
+  }
+  
+  .bg-priority-low {
+    background-color: hsl(var(--priority-low));
+  }
+  
+  /* Custom animations for overdue tasks */
+  @keyframes alert-pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+  
+  @keyframes alert-bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    25% {
+      transform: translateY(-4px);
+    }
+    75% {
+      transform: translateY(2px);
+    }
+  }
+  
+  .animate-alert-pulse {
+    animation: alert-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .animate-alert-bounce {
+    animation: alert-bounce 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}

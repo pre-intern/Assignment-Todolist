@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Task, TaskCategory, TaskPriority } from '@/types/task';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +13,8 @@ import {
   AlertCircle,
   Timer,
   Trash2,
-  Edit
+  Edit,
+  AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDeadline, formatTimeEstimate, getDeadlineStatus, getTaskProgress } from '@/lib/task-utils';
@@ -28,8 +29,22 @@ interface TaskCardProps {
 
 export function TaskCard({ task, onStart, onComplete, onEdit, onDelete }: TaskCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [alertAnimation, setAlertAnimation] = useState('');
   const deadlineStatus = getDeadlineStatus(task.deadline);
   const progress = getTaskProgress(task);
+  const isOverdue = deadlineStatus === 'overdue' && task.status !== 'completed';
+  
+  // Handle overdue task animations
+  useEffect(() => {
+    if (isOverdue && task.status === 'todo') {
+      setAlertAnimation('animate-bounce');
+    } else if (isOverdue && task.status === 'in-progress') {
+      // Slow pulse when in progress
+      setAlertAnimation('animate-pulse');
+    } else if (task.status === 'completed' && deadlineStatus === 'overdue') {
+      setAlertAnimation('');
+    }
+  }, [isOverdue, task.status, deadlineStatus]);
   
   const categoryColors: Record<TaskCategory, string> = {
     class: 'bg-blue-500/10 text-blue-500',
@@ -58,13 +73,39 @@ export function TaskCard({ task, onStart, onComplete, onEdit, onDelete }: TaskCa
   };
   
   return (
-    <Card className={cn(
-      'p-4 transition-all duration-300 hover:shadow-lg',
-      'bg-gradient-card border-border/50',
-      deadlineStatus === 'danger' && 'border-destructive/50',
-      deadlineStatus === 'overdue' && 'border-destructive animate-pulse',
-      task.status === 'completed' && 'opacity-75'
-    )}>
+    <div className="relative">
+      {/* Overdue Alert Indicator */}
+      {isOverdue && task.status === 'todo' && (
+        <div className={cn(
+          "absolute -top-2 -right-2 z-10",
+          alertAnimation
+        )}>
+          <div className="relative">
+            <AlertTriangle className="h-6 w-6 text-destructive fill-destructive/20" />
+            <div className="absolute inset-0 animate-ping">
+              <AlertTriangle className="h-6 w-6 text-destructive opacity-75" />
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <Card className={cn(
+        'p-4 transition-all duration-300 hover:shadow-lg relative overflow-hidden',
+        'bg-gradient-card border-border/50',
+        deadlineStatus === 'danger' && 'border-warning/50',
+        isOverdue && task.status === 'todo' && 'border-destructive shadow-destructive/20 shadow-lg',
+        isOverdue && task.status === 'in-progress' && 'border-warning',
+        task.status === 'completed' && deadlineStatus === 'overdue' && 'bg-destructive/5 border-destructive/30',
+        task.status === 'completed' && deadlineStatus !== 'overdue' && 'opacity-75',
+        alertAnimation
+      )}>
+        {/* Progress-based background overlay for overdue tasks */}
+        {isOverdue && task.status === 'in-progress' && (
+          <div 
+            className="absolute inset-0 bg-gradient-to-r from-warning/10 to-transparent transition-all duration-500"
+            style={{ width: `${100 - progress}%` }}
+          />
+        )}
       <div className="space-y-3">
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -215,5 +256,6 @@ export function TaskCard({ task, onStart, onComplete, onEdit, onDelete }: TaskCa
         </div>
       </div>
     </Card>
+    </div>
   );
 }
