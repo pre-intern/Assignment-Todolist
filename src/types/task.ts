@@ -1,4 +1,5 @@
-export type TaskCategory = 'class' | 'project' | 'work' | 'personal';
+export type TaskCategory = 'class' | 'project' | 'work' | 'personal' | 'health' | 'learning' | 'self-care' | 'house-care' | 'pet-care';
+export type TaskTag = 'study' | 'work' | 'fitness' | 'shopping' | 'project' | 'research' | 'coding' | 'personal' | 'housework' | 'meeting' | 'morning' | 'evening' | 'assignment' | 'presentation' | 'report' | 'must-do' | 'chill' | 'big-goal' | 'self-care';
 export type TaskPriority = 'critical' | 'high' | 'medium' | 'low';
 export type TaskStatus = 'todo' | 'in-progress' | 'completed' | 'overdue';
 

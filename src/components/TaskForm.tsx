@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Task, TaskCategory, TaskPriority } from '@/types/task';
+import { Task, TaskCategory, TaskPriority, TaskTag } from '@/types/task';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -121,6 +121,11 @@ export function TaskForm({ task, open, onClose, onSubmit, procrastinationFactor 
                   <SelectItem value="project">Project</SelectItem>
                   <SelectItem value="work">Work</SelectItem>
                   <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="health">Health</SelectItem>
+                  <SelectItem value="learning">Learning</SelectItem>
+                  <SelectItem value="self-care">Self Care</SelectItem>
+                  <SelectItem value="house-care">House Care</SelectItem>
+                  <SelectItem value="pet-care">Pet Care</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -178,18 +183,56 @@ export function TaskForm({ task, open, onClose, onSubmit, procrastinationFactor 
           
           <div className="space-y-2">
             <Label htmlFor="tags">Tags</Label>
-            <div className="flex gap-2">
-              <Input
-                id="tags"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                placeholder="Add a tag..."
-                className="bg-input border-border"
-              />
-              <Button type="button" onClick={addTag} variant="outline">
-                Add
-              </Button>
+            <div className="space-y-2">
+              <Select
+                value=""
+                onValueChange={(value) => {
+                  if (value && !formData.tags?.includes(value)) {
+                    setFormData({
+                      ...formData,
+                      tags: [...(formData.tags || []), value]
+                    });
+                  }
+                }}
+              >
+                <SelectTrigger className="bg-input border-border">
+                  <SelectValue placeholder="Select tags..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="study">Study</SelectItem>
+                  <SelectItem value="work">Work</SelectItem>
+                  <SelectItem value="fitness">Fitness</SelectItem>
+                  <SelectItem value="shopping">Shopping</SelectItem>
+                  <SelectItem value="project">Project</SelectItem>
+                  <SelectItem value="research">Research</SelectItem>
+                  <SelectItem value="coding">Coding</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="housework">Housework</SelectItem>
+                  <SelectItem value="meeting">Meeting</SelectItem>
+                  <SelectItem value="morning">Morning</SelectItem>
+                  <SelectItem value="evening">Evening</SelectItem>
+                  <SelectItem value="assignment">Assignment</SelectItem>
+                  <SelectItem value="presentation">Presentation</SelectItem>
+                  <SelectItem value="report">Report</SelectItem>
+                  <SelectItem value="must-do">Must Do</SelectItem>
+                  <SelectItem value="chill">Chill</SelectItem>
+                  <SelectItem value="big-goal">Big Goal</SelectItem>
+                  <SelectItem value="self-care">Self Care</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="flex gap-2">
+                <Input
+                  id="tags"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  placeholder="Or add custom tag..."
+                  className="bg-input border-border"
+                />
+                <Button type="button" onClick={addTag} variant="outline">
+                  Add
+                </Button>
+              </div>
             </div>
             {formData.tags && formData.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">

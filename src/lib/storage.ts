@@ -62,7 +62,12 @@ export const storage = {
         class: 0,
         project: 0,
         work: 0,
-        personal: 0
+        personal: 0,
+        health: 0,
+        learning: 0,
+        'self-care': 0,
+        'house-care': 0,
+        'pet-care': 0,
       }
     };
   },

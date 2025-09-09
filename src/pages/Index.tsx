@@ -21,6 +21,7 @@ import {
   Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Congratulations } from '@/components/Congratulations';
 
 export default function Index() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -30,6 +31,7 @@ export default function Index() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [activeTimer, setActiveTimer] = useState<Task | undefined>();
+  const [showCongrats, setShowCongrats] = useState(false);
   
   // Load tasks on mount
   useEffect(() => {
@@ -97,6 +99,7 @@ export default function Index() {
         if (activeTimer?.id === id) {
           setActiveTimer(undefined);
         }
+        setShowCongrats(true);
         toast.success('Task completed! 🎉');
       }
     }
@@ -139,9 +142,9 @@ export default function Index() {
               <Brain className="h-8 w-8 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  StudyFlow
+                  TodoWeb
                 </h1>
-                <p className="text-xs text-muted-foreground">Beat procrastination, ace your studies</p>
+                <p className="text-xs text-muted-foreground">Beat procrastination, achieve your goals</p>
               </div>
             </div>
             
@@ -304,6 +307,12 @@ export default function Index() {
         }}
         onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
         procrastinationFactor={stats.averageProcrastination}
+      />
+      
+      {/* Congratulations Modal */}
+      <Congratulations 
+        show={showCongrats} 
+        onClose={() => setShowCongrats(false)} 
       />
     </div>
   );

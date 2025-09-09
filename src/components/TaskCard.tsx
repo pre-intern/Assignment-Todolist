@@ -32,10 +32,15 @@ export function TaskCard({ task, onStart, onComplete, onEdit, onDelete }: TaskCa
   const progress = getTaskProgress(task);
   
   const categoryColors: Record<TaskCategory, string> = {
-    class: 'bg-category-class',
-    project: 'bg-category-project',
-    work: 'bg-category-work',
-    personal: 'bg-category-personal',
+    class: 'bg-blue-500/10 text-blue-500',
+    project: 'bg-purple-500/10 text-purple-500',
+    work: 'bg-green-500/10 text-green-500',
+    personal: 'bg-pink-500/10 text-pink-500',
+    health: 'bg-red-500/10 text-red-500',
+    learning: 'bg-indigo-500/10 text-indigo-500',
+    'self-care': 'bg-yellow-500/10 text-yellow-500',
+    'house-care': 'bg-orange-500/10 text-orange-500',
+    'pet-care': 'bg-teal-500/10 text-teal-500',
   };
   
   const priorityColors: Record<TaskPriority, string> = {
