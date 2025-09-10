@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      tasks: {
+        Row: {
+          actual_minutes: number | null
+          category: Database["public"]["Enums"]["task_category"]
+          completed_at: string | null
+          created_at: string
+          deadline: string
+          description: string | null
+          estimated_minutes: number
+          id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          procrastination_factor: number | null
+          status: Database["public"]["Enums"]["task_status"]
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actual_minutes?: number | null
+          category: Database["public"]["Enums"]["task_category"]
+          completed_at?: string | null
+          created_at?: string
+          deadline: string
+          description?: string | null
+          estimated_minutes: number
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          procrastination_factor?: number | null
+          status?: Database["public"]["Enums"]["task_status"]
+          tags?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actual_minutes?: number | null
+          category?: Database["public"]["Enums"]["task_category"]
+          completed_at?: string | null
+          created_at?: string
+          deadline?: string
+          description?: string | null
+          estimated_minutes?: number
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          procrastination_factor?: number | null
+          status?: Database["public"]["Enums"]["task_status"]
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +76,18 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      task_category:
+        | "class"
+        | "project"
+        | "work"
+        | "personal"
+        | "health"
+        | "learning"
+        | "self-care"
+        | "house-care"
+        | "pet-care"
+      task_priority: "critical" | "high" | "medium" | "low"
+      task_status: "todo" | "in-progress" | "completed" | "overdue"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +214,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      task_category: [
+        "class",
+        "project",
+        "work",
+        "personal",
+        "health",
+        "learning",
+        "self-care",
+        "house-care",
+        "pet-care",
+      ],
+      task_priority: ["critical", "high", "medium", "low"],
+      task_status: ["todo", "in-progress", "completed", "overdue"],
+    },
   },
 } as const

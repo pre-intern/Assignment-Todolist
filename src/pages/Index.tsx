@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { storage } from '@/lib/storage';
+import { supabaseTasks } from '@/lib/supabase-tasks';
 import { sortTasksByUrgency } from '@/lib/task-utils';
 import { 
   Plus, 
@@ -27,7 +28,24 @@ import { Congratulations } from '@/components/Congratulations';
 
 export default function Index() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [stats, setStats] = useState<TaskStats>(storage.getStats());
+  const [stats, setStats] = useState<TaskStats>({
+    totalTasks: 0,
+    completedTasks: 0,
+    overdueTasks: 0,
+    averageProcrastination: 1,
+    bestWorkingHours: [],
+    categoryBreakdown: {
+      class: 0,
+      project: 0,
+      work: 0,
+      personal: 0,
+      health: 0,
+      learning: 0,
+      'self-care': 0,
+      'house-care': 0,
+      'pet-care': 0,
+    }
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [activeView, setActiveView] = useState<'focus' | 'calendar' | 'stats'>('focus');
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -35,50 +53,94 @@ export default function Index() {
   const [activeTimer, setActiveTimer] = useState<Task | undefined>();
   const [showCongrats, setShowCongrats] = useState(false);
   const [showRestReminder, setShowRestReminder] = useState(false);
+  const [loading, setLoading] = useState(true);
   const workStartTimeRef = useRef<number | null>(null);
   const taskCountRef = useRef<number>(0);
   
   // Load tasks on mount
   useEffect(() => {
-    const loadedTasks = storage.getTasks();
-    setTasks(loadedTasks);
-    updateStats(loadedTasks);
+    loadTasks();
   }, []);
   
-  const updateStats = (updatedTasks: Task[]) => {
-    const newStats = storage.updateStats(updatedTasks);
+  const loadTasks = async () => {
+    setLoading(true);
+    try {
+      const loadedTasks = await supabaseTasks.getTasks();
+      setTasks(loadedTasks);
+      await updateStats();
+    } catch (error) {
+      // Fallback to localStorage if not authenticated
+      const localTasks = storage.getTasks();
+      setTasks(localTasks);
+      const localStats = storage.updateStats(localTasks);
+      setStats(localStats);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStats = async () => {
+    const newStats = await supabaseTasks.getStats();
     setStats(newStats);
   };
   
-  const handleCreateTask = (task: Task) => {
-    const newTask = storage.addTask(task);
-    const updatedTasks = [...tasks, newTask];
-    setTasks(updatedTasks);
-    updateStats(updatedTasks);
-    toast.success('Task created successfully!');
-  };
-  
-  const handleUpdateTask = (task: Task) => {
-    const updated = storage.updateTask(task.id, task);
-    if (updated) {
-      const updatedTasks = tasks.map(t => t.id === task.id ? updated : t);
-      setTasks(updatedTasks);
-      updateStats(updatedTasks);
-      toast.success('Task updated!');
+  const handleCreateTask = async (task: Task) => {
+    const newTask = await supabaseTasks.addTask(task);
+    if (newTask) {
+      setTasks([...tasks, newTask]);
+      await updateStats();
+      toast.success('Task created successfully!');
+    } else {
+      // Fallback to localStorage
+      const localTask = storage.addTask(task);
+      setTasks([...tasks, localTask]);
+      const localStats = storage.updateStats([...tasks, localTask]);
+      setStats(localStats);
+      toast.success('Task created (locally)!');
     }
   };
   
-  const handleDeleteTask = (id: string) => {
-    const updatedTasks = storage.deleteTask(id);
-    setTasks(updatedTasks);
-    updateStats(updatedTasks);
-    toast.success('Task deleted');
+  const handleUpdateTask = async (task: Task) => {
+    const updated = await supabaseTasks.updateTask(task.id, task);
+    if (updated) {
+      const updatedTasks = tasks.map(t => t.id === task.id ? updated : t);
+      setTasks(updatedTasks);
+      await updateStats();
+      toast.success('Task updated!');
+    } else {
+      // Fallback to localStorage
+      const localUpdated = storage.updateTask(task.id, task);
+      if (localUpdated) {
+        const updatedTasks = tasks.map(t => t.id === task.id ? localUpdated : t);
+        setTasks(updatedTasks);
+        const localStats = storage.updateStats(updatedTasks);
+        setStats(localStats);
+        toast.success('Task updated (locally)!');
+      }
+    }
   };
   
-  const handleStartTask = (id: string) => {
+  const handleDeleteTask = async (id: string) => {
+    const success = await supabaseTasks.deleteTask(id);
+    if (success) {
+      const updatedTasks = tasks.filter(t => t.id !== id);
+      setTasks(updatedTasks);
+      await updateStats();
+      toast.success('Task deleted');
+    } else {
+      // Fallback to localStorage
+      const localUpdatedTasks = storage.deleteTask(id);
+      setTasks(localUpdatedTasks);
+      const localStats = storage.updateStats(localUpdatedTasks);
+      setStats(localStats);
+      toast.success('Task deleted (locally)');
+    }
+  };
+  
+  const handleStartTask = async (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (task) {
-      const updated = storage.updateTask(id, { status: 'in-progress' });
+      const updated = await supabaseTasks.updateTask(id, { status: 'in-progress' });
       if (updated) {
         const updatedTasks = tasks.map(t => t.id === id ? updated : t);
         setTasks(updatedTasks);
@@ -101,15 +163,41 @@ export default function Index() {
         }, 60 * 60 * 1000); // Check after 1 hour
         
         toast.success('Timer started!');
+      } else {
+        // Fallback to localStorage
+        const localUpdated = storage.updateTask(id, { status: 'in-progress' });
+        if (localUpdated) {
+          const updatedTasks = tasks.map(t => t.id === id ? localUpdated : t);
+          setTasks(updatedTasks);
+          setActiveTimer(localUpdated);
+          
+          // Track work session for rest reminders
+          if (!workStartTimeRef.current) {
+            workStartTimeRef.current = Date.now();
+          }
+          taskCountRef.current++;
+          
+          // Check if user has been working for more than an hour
+          setTimeout(() => {
+            const workDuration = Date.now() - (workStartTimeRef.current || Date.now());
+            if (workDuration > 60 * 60 * 1000 && taskCountRef.current >= 1) {
+              setShowRestReminder(true);
+              workStartTimeRef.current = null;
+              taskCountRef.current = 0;
+            }
+          }, 60 * 60 * 1000); // Check after 1 hour
+          
+          toast.success('Timer started!');
+        }
       }
     }
   };
   
-  const handleCompleteTask = (id: string) => {
+  const handleCompleteTask = async (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (task) {
       const actualMinutes = activeTimer?.id === id ? 0 : task.actualMinutes || task.estimatedMinutes;
-      const updated = storage.updateTask(id, { 
+      const updated = await supabaseTasks.updateTask(id, { 
         status: 'completed',
         completedAt: new Date().toISOString(),
         actualMinutes
@@ -117,19 +205,37 @@ export default function Index() {
       if (updated) {
         const updatedTasks = tasks.map(t => t.id === id ? updated : t);
         setTasks(updatedTasks);
-        updateStats(updatedTasks);
+        await updateStats();
         if (activeTimer?.id === id) {
           setActiveTimer(undefined);
         }
         setShowCongrats(true);
         toast.success('Task completed! 🎉');
+      } else {
+        // Fallback to localStorage
+        const localUpdated = storage.updateTask(id, { 
+          status: 'completed',
+          completedAt: new Date().toISOString(),
+          actualMinutes
+        });
+        if (localUpdated) {
+          const updatedTasks = tasks.map(t => t.id === id ? localUpdated : t);
+          setTasks(updatedTasks);
+          const localStats = storage.updateStats(updatedTasks);
+          setStats(localStats);
+          if (activeTimer?.id === id) {
+            setActiveTimer(undefined);
+          }
+          setShowCongrats(true);
+          toast.success('Task completed! 🎉');
+        }
       }
     }
   };
   
-  const handleTimerUpdate = (minutes: number) => {
+  const handleTimerUpdate = async (minutes: number) => {
     if (activeTimer) {
-      storage.updateTask(activeTimer.id, { actualMinutes: minutes });
+      await supabaseTasks.updateTask(activeTimer.id, { actualMinutes: minutes });
     }
   };
   
@@ -149,6 +255,18 @@ export default function Index() {
       task.tags.some(tag => tag.toLowerCase().includes(query))
     );
   });
+  
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Brain className="h-12 w-12 text-primary animate-pulse mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading tasks...</p>
+        </div>
+      </div>
+    );
+  }
   
   // Sort tasks for focus view
   const sortedTasks = sortTasksByUrgency(filteredTasks.filter(t => t.status !== 'completed'));
