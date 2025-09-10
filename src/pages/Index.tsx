@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Task, TaskStats } from '@/types/task';
 import { TaskCard } from '@/components/TaskCard';
 import { TaskForm } from '@/components/TaskForm';
@@ -21,12 +23,17 @@ import {
   BarChart3,
   ListTodo,
   Zap,
-  Mail
+  LogOut,
+  User
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Congratulations } from '@/components/Congratulations';
+import { Session, User as SupabaseUser } from '@supabase/supabase-js';
 
 export default function Index() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [stats, setStats] = useState<TaskStats>({
     totalTasks: 0,
@@ -57,9 +64,29 @@ export default function Index() {
   const workStartTimeRef = useRef<number | null>(null);
   const taskCountRef = useRef<number>(0);
   
-  // Load tasks on mount
+  // Setup auth listener and load tasks
   useEffect(() => {
-    loadTasks();
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Reload tasks when auth state changes
+        if (session) {
+          loadTasks();
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      loadTasks();
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
   
   const loadTasks = async () => {
@@ -282,7 +309,7 @@ export default function Index() {
               <Brain className="h-8 w-8 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  TodoWeb
+                  Study Flow
                 </h1>
                 <p className="text-xs text-muted-foreground">Beat procrastination, achieve your goals</p>
               </div>
@@ -299,16 +326,33 @@ export default function Index() {
                 />
               </div>
               
-              <Button 
-                variant="outline"
-                className="border-blue-500/50 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
-                onClick={() => {
-                  toast.info('Gmail login coming soon! Please enable Supabase first.');
-                }}
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                Login with Gmail
-              </Button>
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="gap-1">
+                    <User className="h-3 w-3" />
+                    {user.email?.split('@')[0]}
+                  </Badge>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      await supabase.auth.signOut();
+                      navigate('/auth');
+                    }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  variant="outline"
+                  className="border-blue-500/50 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+                  onClick={() => navigate('/auth')}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Login / Sign Up
+                </Button>
+              )}
               
               <Button 
                 onClick={() => {
