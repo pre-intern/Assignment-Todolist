@@ -115,8 +115,10 @@ export default function Auth() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-3 mb-8">
-          <Brain className="h-10 w-10 text-primary" />
-          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center">
+            <Brain className="h-8 w-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
             Study Flow
           </h1>
         </div>

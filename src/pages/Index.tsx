@@ -306,9 +306,11 @@ export default function Index() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Brain className="h-8 w-8 text-primary" />
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center">
+                <Brain className="h-6 w-6 text-white" />
+              </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
                   Study Flow
                 </h1>
                 <p className="text-xs text-muted-foreground">Beat procrastination, achieve your goals</p>
