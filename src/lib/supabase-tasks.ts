@@ -1,5 +1,23 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Task, TaskStats, TaskCategory } from '@/types/task';
+import { PROCRASTINATION_WEIGHTS, UI_CONFIG } from '@/config/constants';
+import { handleError } from '@/utils/error-handler';
+
+interface DbTask {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  priority: string;
+  status: string;
+  estimated_minutes: number;
+  actual_minutes: number | null;
+  deadline: string;
+  created_at: string;
+  completed_at: string | null;
+  tags: string[];
+  procrastination_factor: number | null;
+}
 
 export const supabaseTasks = {
   // Get all tasks for current user
@@ -13,7 +31,7 @@ export const supabaseTasks = {
       .order('deadline', { ascending: true });
 
     if (error) {
-      console.error('Error fetching tasks:', error);
+      handleError(error, 'Error fetching tasks');
       return [];
     }
 
@@ -30,13 +48,14 @@ export const supabaseTasks = {
       .from('tasks')
       .insert({
         ...dbTask,
-        user_id: user.id
-      })
+        user_id: user.id,
+        category: dbTask.category as TaskCategory
+      } as any)
       .select()
       .single();
 
     if (error) {
-      console.error('Error adding task:', error);
+      handleError(error, 'Error adding task');
       return null;
     }
 
@@ -59,7 +78,7 @@ export const supabaseTasks = {
 
       if (existing) {
         const currentFactor = existing.procrastination_factor || 1;
-        const newFactor = (currentFactor * 0.3 + (updates.actualMinutes / existing.estimated_minutes) * 0.7);
+        const newFactor = (currentFactor * PROCRASTINATION_WEIGHTS.CURRENT + (updates.actualMinutes / existing.estimated_minutes) * PROCRASTINATION_WEIGHTS.NEW);
         procrastinationUpdate = { procrastination_factor: newFactor };
       }
     }
@@ -72,13 +91,13 @@ export const supabaseTasks = {
 
     const { data, error } = await supabase
       .from('tasks')
-      .update(dbUpdates)
+      .update(dbUpdates as any)
       .eq('id', id)
       .select()
       .single();
 
     if (error) {
-      console.error('Error updating task:', error);
+      handleError(error, 'Error updating task');
       return null;
     }
 
@@ -96,7 +115,7 @@ export const supabaseTasks = {
       .eq('id', id);
 
     if (error) {
-      console.error('Error deleting task:', error);
+      handleError(error, 'Error deleting task');
       return false;
     }
 
@@ -163,27 +182,27 @@ export const supabaseTasks = {
 };
 
 // Transform database task to app task
-function transformDbTask(dbTask: any): Task {
+function transformDbTask(dbTask: DbTask): Task {
   return {
     id: dbTask.id,
     title: dbTask.title,
-    description: dbTask.description,
-    category: dbTask.category,
-    priority: dbTask.priority,
-    status: dbTask.status,
+    description: dbTask.description || undefined,
+    category: dbTask.category as TaskCategory,
+    priority: dbTask.priority as Task['priority'],
+    status: dbTask.status as Task['status'],
     estimatedMinutes: dbTask.estimated_minutes,
-    actualMinutes: dbTask.actual_minutes,
+    actualMinutes: dbTask.actual_minutes || undefined,
     deadline: dbTask.deadline,
     createdAt: dbTask.created_at,
-    completedAt: dbTask.completed_at,
+    completedAt: dbTask.completed_at || undefined,
     tags: dbTask.tags || [],
-    procrastinationFactor: dbTask.procrastination_factor
+    procrastinationFactor: dbTask.procrastination_factor || undefined
   };
 }
 
 // Transform app task to database format
-function transformToDbTask(task: Partial<Task>): any {
-  const dbTask: any = {};
+function transformToDbTask(task: Partial<Task>): Partial<DbTask> {
+  const dbTask: Partial<DbTask> = {};
   
   if (task.title !== undefined) dbTask.title = task.title;
   if (task.description !== undefined) dbTask.description = task.description;

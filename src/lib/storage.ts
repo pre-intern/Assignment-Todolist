@@ -1,7 +1,8 @@
 import { Task, TaskStats } from '@/types/task';
+import { STORAGE_KEYS, PROCRASTINATION_WEIGHTS } from '@/config/constants';
 
-const TASKS_KEY = 'studyflow_tasks';
-const STATS_KEY = 'studyflow_stats';
+const TASKS_KEY = STORAGE_KEYS.TASKS;
+const STATS_KEY = STORAGE_KEYS.STATS;
 
 export const storage = {
   // Tasks CRUD
@@ -33,7 +34,7 @@ export const storage = {
         const actual = updates.actualMinutes;
         const currentFactor = tasks[index].procrastinationFactor || 1;
         // Weighted average with more weight on recent completions
-        tasks[index].procrastinationFactor = (currentFactor * 0.3 + (actual / estimated) * 0.7);
+        tasks[index].procrastinationFactor = (currentFactor * PROCRASTINATION_WEIGHTS.CURRENT + (actual / estimated) * PROCRASTINATION_WEIGHTS.NEW);
       }
       
       storage.saveTasks(tasks);
