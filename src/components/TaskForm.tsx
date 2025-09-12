@@ -1,3 +1,9 @@
+/**
+ * Component TaskForm - Form tạo mới hoặc chỉnh sửa task
+ * Cho phép người dùng nhập thông tin task: tiêu đề, mô tả, danh mục, độ ưu tiên, thời gian, deadline, tags
+ * Tự động tính toán thời gian thực tế dựa trên hệ số trì hoãn
+ */
+
 import { useState } from 'react';
 import { Task, TaskCategory, TaskPriority, TaskTag } from '@/types/task';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -10,12 +16,13 @@ import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import { generateTaskId } from '@/lib/task-utils';
 
+// Props interface cho TaskForm
 interface TaskFormProps {
-  task?: Task;
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (task: Task) => void;
-  procrastinationFactor: number;
+  task?: Task; // Task cần edit (optional - nếu không có thì là tạo mới)
+  open: boolean; // Trạng thái mở/đóng dialog
+  onClose: () => void; // Callback đóng form
+  onSubmit: (task: Task) => void; // Callback submit form
+  procrastinationFactor: number; // Hệ số trì hoãn để tính thời gian thực tế
 }
 
 export function TaskForm({ task, open, onClose, onSubmit, procrastinationFactor }: TaskFormProps) {

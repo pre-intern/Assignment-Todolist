@@ -1,3 +1,9 @@
+/**
+ * Component TaskTimer - Bộ đếm thời gian cho task đang thực hiện
+ * Theo dõi thời gian thực tế làm việc, so sánh với thời gian ước tính
+ * Thay đổi màu sắc cảnh báo khi vượt quá thời gian dự kiến
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,12 +11,13 @@ import { Play, Pause, RotateCcw } from 'lucide-react';
 import { formatTimeEstimate } from '@/lib/task-utils';
 import { cn } from '@/lib/utils';
 
+// Props interface cho TaskTimer
 interface TaskTimerProps {
-  taskId: string;
-  taskTitle: string;
-  estimatedMinutes: number;
-  onTimeUpdate: (minutes: number) => void;
-  onComplete: () => void;
+  taskId: string; // ID của task (không sử dụng trong component hiện tại)
+  taskTitle: string; // Tiêu đề task hiển thị
+  estimatedMinutes: number; // Thời gian ước tính (phút)
+  onTimeUpdate: (minutes: number) => void; // Callback cập nhật thời gian
+  onComplete: () => void; // Callback khi hoàn thành task
 }
 
 export function TaskTimer({ taskTitle, estimatedMinutes, onTimeUpdate, onComplete }: TaskTimerProps) {

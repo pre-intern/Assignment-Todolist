@@ -1,3 +1,9 @@
+/**
+ * Component CalendarView - Hiển thị lịch tasks trong 30 ngày tới
+ * Nhóm tasks theo ngày, highlight ngày hôm nay và cuối tuần
+ * Click vào task để xem chi tiết
+ */
+
 import { Task } from '@/types/task';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -5,9 +11,10 @@ import { Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatTimeEstimate, getDeadlineStatus } from '@/lib/task-utils';
 
+// Props interface cho CalendarView
 interface CalendarViewProps {
-  tasks: Task[];
-  onTaskClick: (task: Task) => void;
+  tasks: Task[]; // Danh sách tasks cần hiển thị
+  onTaskClick: (task: Task) => void; // Callback khi click vào task
 }
 
 export function CalendarView({ tasks, onTaskClick }: CalendarViewProps) {

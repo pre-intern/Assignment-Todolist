@@ -1,13 +1,21 @@
+/**
+ * Component RestReminder - Dialog nhắc nhở nghỉ ngơi
+ * Hiển thị sau mỗi giờ làm việc với các lời khuyên ngẫu nhiên
+ * Giúp người dùng duy trì sức khỏe và năng suất làm việc
+ */
+
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Eye, Coffee, Activity, Heart, Brain, Sparkles } from 'lucide-react';
 
+// Props interface cho RestReminder
 interface RestReminderProps {
-  show: boolean;
-  onClose: () => void;
+  show: boolean; // Trạng thái hiển thị dialog
+  onClose: () => void; // Callback đóng dialog
 }
 
+// Danh sách các lời khuyên nghỉ ngơi với icon và màu sắc
 const restAdvices = [
   {
     icon: Eye,

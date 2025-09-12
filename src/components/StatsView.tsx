@@ -1,3 +1,9 @@
+/**
+ * Component StatsView - Hiển thị thống kê tổng quan về tasks
+ * Bao gồm: tổng số task, task hoàn thành, task quá hạn, hệ số trì hoãn
+ * Hiển thị biểu đồ giờ làm việc hiệu quả và phân bổ task theo danh mục
+ */
+
 import { TaskStats } from '@/types/task';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -11,8 +17,9 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Props interface cho StatsView
 interface StatsViewProps {
-  stats: TaskStats;
+  stats: TaskStats; // Object chứa các thống kê
 }
 
 export function StatsView({ stats }: StatsViewProps) {
