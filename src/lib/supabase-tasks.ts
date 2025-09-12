@@ -3,6 +3,7 @@ import { Task, TaskStats, TaskCategory } from '@/types/task';
 import { PROCRASTINATION_WEIGHTS, UI_CONFIG } from '@/config/constants';
 import { handleError } from '@/utils/error-handler';
 
+// Interface định nghĩa cấu trúc task trong database
 interface DbTask {
   id: string;
   title: string;
@@ -19,8 +20,9 @@ interface DbTask {
   procrastination_factor: number | null;
 }
 
+// Object chứa các hàm tương tác với database Supabase cho tasks
 export const supabaseTasks = {
-  // Get all tasks for current user
+  // Lấy tất cả tasks của người dùng hiện tại từ database
   async getTasks(): Promise<Task[]> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
@@ -38,17 +40,20 @@ export const supabaseTasks = {
     return (data || []).map(transformDbTask);
   },
 
-  // Add a new task
+  // Thêm task mới vào database
   async addTask(task: Task): Promise<Task | null> {
+    // Lấy thông tin người dùng hiện tại
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
 
+    // Chuyển đổi task từ format app sang format database
     const dbTask = transformToDbTask(task);
+    // Lưu task vào database với user_id
     const { data, error } = await supabase
       .from('tasks')
       .insert({
         ...dbTask,
-        user_id: user.id,
+        user_id: user.id, // Gắn task với user hiện tại
         category: dbTask.category as TaskCategory
       } as any)
       .select()
@@ -59,15 +64,16 @@ export const supabaseTasks = {
       return null;
     }
 
+    // Chuyển đổi kết quả từ database về format app
     return transformDbTask(data);
   },
 
-  // Update a task
+  // Cập nhật thông tin task trong database
   async updateTask(id: string, updates: Partial<Task>): Promise<Task | null> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
 
-    // Calculate procrastination factor if completing
+    // Tính toán hệ số trì hoãn nếu task được hoàn thành
     let procrastinationUpdate = {};
     if (updates.status === 'completed' && updates.actualMinutes) {
       const { data: existing } = await supabase
@@ -104,7 +110,7 @@ export const supabaseTasks = {
     return transformDbTask(data);
   },
 
-  // Delete a task
+  // Xóa task khỏi database
   async deleteTask(id: string): Promise<boolean> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return false;
@@ -122,24 +128,25 @@ export const supabaseTasks = {
     return true;
   },
 
-  // Calculate stats
+  // Tính toán thống kê từ các tasks
   async getStats(): Promise<TaskStats> {
     const tasks = await this.getTasks();
     const now = new Date();
 
+    // Lọc các task đã hoàn thành và quá hạn
     const completedTasks = tasks.filter(t => t.status === 'completed');
     const overdueTasks = tasks.filter(t => 
       t.status !== 'completed' && new Date(t.deadline) < now
     );
 
-    // Calculate average procrastination
+    // Tính toán hệ số trì hoãn trung bình
     const completedWithActual = completedTasks.filter(t => t.actualMinutes && t.estimatedMinutes);
     const averageProcrastination = completedWithActual.length > 0
       ? completedWithActual.reduce((sum, task) => 
           sum + (task.actualMinutes! / task.estimatedMinutes), 0) / completedWithActual.length
       : 1;
 
-    // Calculate best working hours
+    // Tính toán giờ làm việc hiệu quả nhất
     const hourProductivity: Record<number, number> = {};
     completedTasks
       .filter(t => t.completedAt)
@@ -153,7 +160,7 @@ export const supabaseTasks = {
       .sort((a, b) => b.productivity - a.productivity)
       .slice(0, 5);
 
-    // Calculate category breakdown
+    // Phân tích tasks theo danh mục
     const categoryBreakdown: Record<TaskCategory, number> = {
       class: 0,
       project: 0,
@@ -181,7 +188,7 @@ export const supabaseTasks = {
   }
 };
 
-// Transform database task to app task
+// Chuyển đổi task từ format database sang format ứng dụng
 function transformDbTask(dbTask: DbTask): Task {
   return {
     id: dbTask.id,
@@ -200,7 +207,7 @@ function transformDbTask(dbTask: DbTask): Task {
   };
 }
 
-// Transform app task to database format
+// Chuyển đổi task từ format ứng dụng sang format database
 function transformToDbTask(task: Partial<Task>): Partial<DbTask> {
   const dbTask: Partial<DbTask> = {};
   

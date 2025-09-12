@@ -5,8 +5,11 @@ import { supabaseTasks } from '@/lib/supabase-tasks';
 import { toast } from 'sonner';
 import { SUCCESS_MESSAGES, ERROR_MESSAGES, INFO_MESSAGES } from '@/config/messages';
 
+// Hook quản lý tasks - kết nối với database khi người dùng đã đăng nhập
 export function useTasks(isAuthenticated: boolean) {
+  // State lưu trữ danh sách tasks
   const [tasks, setTasks] = useState<Task[]>([]);
+  // State lưu trữ thống kê
   const [stats, setStats] = useState<TaskStats>({
     totalTasks: 0,
     completedTasks: 0,
@@ -27,15 +30,18 @@ export function useTasks(isAuthenticated: boolean) {
   });
   const [loading, setLoading] = useState(false);
 
+  // Hàm load tasks từ database hoặc localStorage
   const loadTasks = useCallback(async () => {
     setLoading(true);
     try {
       if (isAuthenticated) {
+        // Nếu đã đăng nhập, lấy tasks từ database Supabase
         const loadedTasks = await supabaseTasks.getTasks();
         setTasks(loadedTasks);
         const newStats = await supabaseTasks.getStats();
         setStats(newStats);
       } else {
+        // Nếu chưa đăng nhập, lấy tasks từ localStorage
         const localTasks = storage.getTasks();
         setTasks(localTasks);
         const localStats = storage.updateStats(localTasks);
@@ -43,7 +49,7 @@ export function useTasks(isAuthenticated: boolean) {
       }
     } catch (error) {
       console.error(ERROR_MESSAGES.FETCH_TASKS_FAILED, error);
-      // Fallback to localStorage
+      // Nếu lỗi, fallback về localStorage
       const localTasks = storage.getTasks();
       setTasks(localTasks);
       const localStats = storage.updateStats(localTasks);
@@ -53,9 +59,11 @@ export function useTasks(isAuthenticated: boolean) {
     }
   }, [isAuthenticated]);
 
+  // Hàm tạo task mới - lưu vào database nếu đã đăng nhập
   const createTask = useCallback(async (task: Task) => {
     try {
       if (isAuthenticated) {
+        // Lưu task vào database Supabase
         const newTask = await supabaseTasks.addTask(task);
         if (newTask) {
           setTasks(prev => [...prev, newTask]);
@@ -66,7 +74,7 @@ export function useTasks(isAuthenticated: boolean) {
         }
       }
       
-      // Fallback to localStorage
+      // Nếu chưa đăng nhập hoặc lỗi, lưu vào localStorage
       const localTask = storage.addTask(task);
       setTasks(prev => [...prev, localTask]);
       const localStats = storage.updateStats([...tasks, localTask]);
@@ -80,9 +88,11 @@ export function useTasks(isAuthenticated: boolean) {
     }
   }, [isAuthenticated, tasks]);
 
+  // Hàm cập nhật task - đồng bộ với database nếu đã đăng nhập
   const updateTask = useCallback(async (id: string, updates: Partial<Task>) => {
     try {
       if (isAuthenticated) {
+        // Cập nhật task trong database Supabase
         const updated = await supabaseTasks.updateTask(id, updates);
         if (updated) {
           setTasks(prev => prev.map(t => t.id === id ? updated : t));
@@ -93,7 +103,7 @@ export function useTasks(isAuthenticated: boolean) {
         }
       }
       
-      // Fallback to localStorage
+      // Nếu chưa đăng nhập hoặc lỗi, cập nhật trong localStorage
       const localUpdated = storage.updateTask(id, updates);
       if (localUpdated) {
         setTasks(prev => prev.map(t => t.id === id ? localUpdated : t));
@@ -111,9 +121,11 @@ export function useTasks(isAuthenticated: boolean) {
     }
   }, [isAuthenticated, tasks]);
 
+  // Hàm xóa task - xóa khỏi database nếu đã đăng nhập
   const deleteTask = useCallback(async (id: string) => {
     try {
       if (isAuthenticated) {
+        // Xóa task khỏi database Supabase
         const success = await supabaseTasks.deleteTask(id);
         if (success) {
           setTasks(prev => prev.filter(t => t.id !== id));
@@ -124,7 +136,7 @@ export function useTasks(isAuthenticated: boolean) {
         }
       }
       
-      // Fallback to localStorage
+      // Nếu chưa đăng nhập hoặc lỗi, xóa khỏi localStorage
       const localUpdatedTasks = storage.deleteTask(id);
       setTasks(localUpdatedTasks);
       const localStats = storage.updateStats(localUpdatedTasks);

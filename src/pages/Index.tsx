@@ -35,11 +35,14 @@ import {
   LABELS 
 } from '@/config/messages';
 
+// Component chính - Trang quản lý tasks
 export default function Index() {
   const navigate = useNavigate();
+  // Hooks xác thực và quản lý tasks
   const { user, signOut } = useAuth();
   const { tasks, stats, loading, loadTasks, createTask, updateTask, deleteTask } = useTasks(!!user);
   
+  // States quản lý UI
   const [searchQuery, setSearchQuery] = useState('');
   const [activeView, setActiveView] = useState<'focus' | 'calendar' | 'stats'>('focus');
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -50,24 +53,27 @@ export default function Index() {
   const workStartTimeRef = useRef<number | null>(null);
   const taskCountRef = useRef<number>(0);
 
+  // Load tasks khi component mount
   useEffect(() => {
     loadTasks();
   }, [loadTasks]);
 
+  // Xử lý bắt đầu task
   const handleStartTask = async (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (task) {
+      // Cập nhật trạng thái task trong database
       const updated = await updateTask(id, { status: 'in-progress' });
       if (updated) {
         setActiveTimer(updated);
         
-        // Track work session for rest reminders
+        // Theo dõi thời gian làm việc để nhắc nghỉ
         if (!workStartTimeRef.current) {
           workStartTimeRef.current = Date.now();
         }
         taskCountRef.current++;
         
-        // Check if user has been working for more than configured time
+        // Kiểm tra xem người dùng đã làm việc quá lâu chưa
         setTimeout(() => {
           const workDuration = Date.now() - (workStartTimeRef.current || Date.now());
           if (workDuration > WORK_SESSION.REST_REMINDER_AFTER && taskCountRef.current >= WORK_SESSION.MIN_TASKS_FOR_REST) {
@@ -82,10 +88,12 @@ export default function Index() {
     }
   };
 
+  // Xử lý hoàn thành task
   const handleCompleteTask = async (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (task) {
       const actualMinutes = activeTimer?.id === id ? 0 : task.actualMinutes || task.estimatedMinutes;
+      // Cập nhật task hoàn thành trong database
       const updated = await updateTask(id, { 
         status: 'completed',
         completedAt: new Date().toISOString(),
@@ -101,24 +109,27 @@ export default function Index() {
     }
   };
 
+  // Cập nhật thời gian thực tế khi timer chạy
   const handleTimerUpdate = async (minutes: number) => {
     if (activeTimer) {
       await updateTask(activeTimer.id, { actualMinutes: minutes });
     }
   };
 
+  // Xử lý khi timer hoàn thành
   const handleTimerComplete = () => {
     if (activeTimer) {
       handleCompleteTask(activeTimer.id);
     }
   };
 
+  // Xử lý đăng xuất
   const handleSignOut = async () => {
     await signOut();
     navigate(ROUTES.AUTH);
   };
 
-  // Filter tasks based on search
+  // Lọc tasks theo từ khóa tìm kiếm
   const filteredTasks = tasks.filter(task => {
     const query = searchQuery.toLowerCase();
     return (
@@ -129,7 +140,7 @@ export default function Index() {
     );
   });
 
-  // Sort tasks for focus view
+  // Sắp xếp tasks theo độ ưu tiên cho chế độ focus
   const sortedTasks = sortTasksByUrgency(filteredTasks.filter(t => t.status !== 'completed'));
   const completedTasks = filteredTasks.filter(t => t.status === 'completed');
 
