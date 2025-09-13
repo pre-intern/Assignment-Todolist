@@ -21,11 +21,16 @@ export function useTasks(isAuthenticated: boolean) {
       project: 0,
       work: 0,
       personal: 0,
-      health: 0,
-      learning: 0,
       'self-care': 0,
-      'house-care': 0,
       'pet-care': 0,
+      housework: 0,
+      'health-care': 0,
+      fitness: 0,
+      shopping: 0,
+      workshop: 0,
+      finance: 0,
+      learning: 0,
+      relax: 0,
     }
   });
   const [loading, setLoading] = useState(false);

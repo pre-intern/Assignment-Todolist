@@ -66,11 +66,16 @@ export function TaskCard({ task, onStart, onComplete, onEdit, onDelete }: TaskCa
     project: 'bg-purple-500/10 text-purple-500',
     work: 'bg-green-500/10 text-green-500',
     personal: 'bg-pink-500/10 text-pink-500',
-    health: 'bg-red-500/10 text-red-500',
-    learning: 'bg-indigo-500/10 text-indigo-500',
     'self-care': 'bg-yellow-500/10 text-yellow-500',
-    'house-care': 'bg-orange-500/10 text-orange-500',
     'pet-care': 'bg-teal-500/10 text-teal-500',
+    housework: 'bg-orange-500/10 text-orange-500',
+    'health-care': 'bg-red-500/10 text-red-500',
+    fitness: 'bg-emerald-500/10 text-emerald-500',
+    shopping: 'bg-violet-500/10 text-violet-500',
+    workshop: 'bg-cyan-500/10 text-cyan-500',
+    finance: 'bg-amber-500/10 text-amber-500',
+    learning: 'bg-indigo-500/10 text-indigo-500',
+    relax: 'bg-lime-500/10 text-lime-500',
   };
   
   // Màu sắc cho từng mức độ ưu tiên

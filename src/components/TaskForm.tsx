@@ -81,11 +81,14 @@ export function TaskForm({ task, open, onClose, onSubmit, procrastinationFactor 
   
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg bg-card">
+      <DialogContent className="max-w-lg bg-card" aria-describedby="task-form-description">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             {task ? 'Edit Task' : 'Create New Task'}
           </DialogTitle>
+          <p id="task-form-description" className="sr-only">
+            Form to {task ? 'edit an existing' : 'create a new'} task
+          </p>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
