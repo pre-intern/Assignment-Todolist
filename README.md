@@ -15,9 +15,12 @@ cd Assignment-Todolist
 
 # 2. Install dependencies
 npm install
+npm run build 
+nếu lỗi thì 
+    npm install vite --save-dev
 
 # 3. Run in development
-npm run dev
+npm run dev 
 
 Deployed Web URL or APK file
 
