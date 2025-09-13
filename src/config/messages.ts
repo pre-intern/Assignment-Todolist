@@ -1,50 +1,50 @@
-// Success messages
+// Thông báo thành công
 export const SUCCESS_MESSAGES = {
-  TASK_CREATED: 'Task created successfully!',
-  TASK_UPDATED: 'Task updated!',
-  TASK_DELETED: 'Task deleted',
-  TASK_COMPLETED: 'Task completed! 🎉',
-  TIMER_STARTED: 'Timer started!',
-  LOGIN: 'Successfully logged in!',
-  SIGNUP: 'Check your email to confirm your account!',
+  TASK_CREATED: 'Tạo task thành công!',
+  TASK_UPDATED: 'Cập nhật task thành công!',
+  TASK_DELETED: 'Xóa task thành công',
+  TASK_COMPLETED: 'Hoàn thành task! 🎉',
+  TIMER_STARTED: 'Bắt đầu bấm giờ!',
+  LOGIN: 'Đăng nhập thành công!',
+  SIGNUP: 'Kiểm tra email để xác nhận tài khoản!',
 } as const;
 
-// Error messages
+// Thông báo lỗi
 export const ERROR_MESSAGES = {
-  PASSWORDS_MISMATCH: 'Passwords do not match',
-  EMAIL_EXISTS: 'This email is already registered. Please login instead.',
-  LOGIN_FAILED: 'Failed to login',
-  SIGNUP_FAILED: 'Failed to sign up',
-  GOOGLE_LOGIN_FAILED: 'Failed to login with Google',
-  TASK_CREATE_FAILED: 'Failed to create task',
-  TASK_UPDATE_FAILED: 'Failed to update task',
-  TASK_DELETE_FAILED: 'Failed to delete task',
-  FETCH_TASKS_FAILED: 'Error fetching tasks',
+  PASSWORDS_MISMATCH: 'Mật khẩu không khớp',
+  EMAIL_EXISTS: 'Email đã được đăng ký. Vui lòng đăng nhập.',
+  LOGIN_FAILED: 'Đăng nhập thất bại',
+  SIGNUP_FAILED: 'Đăng ký thất bại',
+  GOOGLE_LOGIN_FAILED: 'Đăng nhập với Google thất bại',
+  TASK_CREATE_FAILED: 'Tạo task thất bại',
+  TASK_UPDATE_FAILED: 'Cập nhật task thất bại',
+  TASK_DELETE_FAILED: 'Xóa task thất bại',
+  FETCH_TASKS_FAILED: 'Lỗi khi tải tasks',
 } as const;
 
-// Info messages
+// Thông báo thông tin
 export const INFO_MESSAGES = {
-  LOADING_TASKS: 'Loading tasks...',
-  NO_ACTIVE_TASKS: 'No active tasks',
-  CREATE_FIRST_TASK: 'Create Your First Task',
-  TASK_CREATED_LOCALLY: 'Task created (locally)!',
-  TASK_UPDATED_LOCALLY: 'Task updated (locally)!',
-  TASK_DELETED_LOCALLY: 'Task deleted (locally)',
+  LOADING_TASKS: 'Đang tải tasks...',
+  NO_ACTIVE_TASKS: 'Không có task nào',
+  CREATE_FIRST_TASK: 'Tạo Task Đầu Tiên',
+  TASK_CREATED_LOCALLY: 'Task đã được tạo (offline)!',
+  TASK_UPDATED_LOCALLY: 'Task đã được cập nhật (offline)!',
+  TASK_DELETED_LOCALLY: 'Task đã được xóa (offline)',
 } as const;
 
-// UI Labels
+// Nhãn giao diện
 export const LABELS = {
-  LOGIN: 'Login',
-  SIGNUP: 'Sign Up',
-  LOGGING_IN: 'Logging in...',
-  CREATING_ACCOUNT: 'Creating account...',
-  CONTINUE_WITH_GOOGLE: 'Continue with Google',
-  LOGIN_SIGNUP: 'Login / Sign Up',
-  NEW_TASK: 'New Task',
-  FOCUS_MODE: 'Focus Mode',
-  CALENDAR: 'Calendar',
-  ANALYTICS: 'Analytics',
-  ACTIVE_TASKS: 'Active Tasks',
-  COMPLETED: 'Completed',
-  HIGH_PROCRASTINATION_WARNING: '⚠️ High procrastination detected',
+  LOGIN: 'Đăng nhập',
+  SIGNUP: 'Đăng ký',
+  LOGGING_IN: 'Đang đăng nhập...',
+  CREATING_ACCOUNT: 'Đang tạo tài khoản...',
+  CONTINUE_WITH_GOOGLE: 'Tiếp tục với Google',
+  LOGIN_SIGNUP: 'Đăng nhập / Đăng ký',
+  NEW_TASK: 'Task Mới',
+  FOCUS_MODE: 'Chế độ Tập trung',
+  CALENDAR: 'Lịch',
+  ANALYTICS: 'Thống kê',
+  ACTIVE_TASKS: 'Tasks Đang thực hiện',
+  COMPLETED: 'Đã hoàn thành',
+  HIGH_PROCRASTINATION_WARNING: '⚠️ Phát hiện độ trì hoãn cao',
 } as const;

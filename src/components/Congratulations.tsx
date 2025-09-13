@@ -1,21 +1,25 @@
+// Import các thư viện và icons cần thiết
 import { useEffect, useState } from 'react';
 import { CheckCircle2, Trophy, Star, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Interface định nghĩa props cho component Congratulations
 interface CongratulationsProps {
-  show: boolean;
-  onClose: () => void;
+  show: boolean; // Hiển thị hoặc ẩn modal
+  onClose: () => void; // Callback khi đóng modal
 }
 
+// Component Congratulations - Hiển thị thông báo chúc mừng khi hoàn thành task
 export function Congratulations({ show, onClose }: CongratulationsProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (show) {
       setIsVisible(true);
+      // Tự động đóng sau 3 giây
       const timer = setTimeout(() => {
         setIsVisible(false);
-        setTimeout(onClose, 300);
+        setTimeout(onClose, 300); // Đợi animation kết thúc rồi mới gọi onClose
       }, 3000);
       return () => clearTimeout(timer);
     }

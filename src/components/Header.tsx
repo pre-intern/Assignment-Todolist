@@ -1,3 +1,4 @@
+// Import các thư viện và components cần thiết
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,14 +7,16 @@ import { Brain, Search, Plus, LogOut, User } from 'lucide-react';
 import { APP_NAME, APP_TAGLINE, UI_CONFIG, ROUTES } from '@/config/constants';
 import { LABELS } from '@/config/messages';
 
+// Interface định nghĩa props cho Header component
 interface HeaderProps {
-  user: any;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  onNewTask: () => void;
-  onSignOut: () => void;
+  user: any; // Thông tin người dùng đã đăng nhập
+  searchQuery: string; // Từ khóa tìm kiếm
+  onSearchChange: (query: string) => void; // Callback khi thay đổi tìm kiếm
+  onNewTask: () => void; // Callback khi tạo task mới
+  onSignOut: () => void; // Callback khi đăng xuất
 }
 
+// Component Header - Thanh điều hướng chính của ứng dụng
 export function Header({ user, searchQuery, onSearchChange, onNewTask, onSignOut }: HeaderProps) {
   const navigate = useNavigate();
 

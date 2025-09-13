@@ -1,3 +1,4 @@
+// Import các thư viện và component cần thiết
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,9 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain, Mail, Lock, User, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Component Auth - Xử lý đăng nhập và đăng ký người dùng
 export default function Auth() {
   const navigate = useNavigate();
+  // State quản lý trạng thái loading khi xử lý authentication
   const [loading, setLoading] = useState(false);
+  // State lưu trữ thông tin form
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,23 +23,24 @@ export default function Auth() {
   const [lastName, setLastName] = useState('');
 
   useEffect(() => {
-    // Check if user is already logged in
+    // Kiểm tra xem người dùng đã đăng nhập chưa
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate('/');
+        navigate('/'); // Chuyển về trang chủ nếu đã đăng nhập
       }
     });
 
-    // Listen for auth changes
+    // Lắng nghe thay đổi trạng thái authentication
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate('/');
+        navigate('/'); // Tự động chuyển về trang chủ khi đăng nhập thành công
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  // Xử lý đăng nhập bằng email và mật khẩu
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -47,19 +52,21 @@ export default function Auth() {
       });
 
       if (error) throw error;
-      toast.success('Successfully logged in!');
+      toast.success('Đăng nhập thành công!');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to login');
+      toast.error(error.message || 'Đăng nhập thất bại');
     } finally {
       setLoading(false);
     }
   };
 
+  // Xử lý đăng ký tài khoản mới
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Kiểm tra mật khẩu xác nhận
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error('Mật khẩu không khớp');
       return;
     }
 
@@ -68,6 +75,7 @@ export default function Auth() {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
+      // Gọi API đăng ký của Supabase
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -81,18 +89,19 @@ export default function Auth() {
       });
 
       if (error) throw error;
-      toast.success('Check your email to confirm your account!');
+      toast.success('Kiểm tra email để xác nhận tài khoản!');
     } catch (error: any) {
       if (error.message?.includes('already registered')) {
-        toast.error('This email is already registered. Please login instead.');
+        toast.error('Email đã được đăng ký. Vui lòng đăng nhập.');
       } else {
-        toast.error(error.message || 'Failed to sign up');
+        toast.error(error.message || 'Đăng ký thất bại');
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Xử lý đăng nhập bằng Google OAuth
   const handleGoogleLogin = async () => {
     setLoading(true);
 
@@ -106,7 +115,7 @@ export default function Auth() {
 
       if (error) throw error;
     } catch (error: any) {
-      toast.error(error.message || 'Failed to login with Google');
+      toast.error(error.message || 'Đăng nhập với Google thất bại');
       setLoading(false);
     }
   };
