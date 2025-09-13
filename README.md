@@ -1,73 +1,119 @@
-# Welcome to your Lovable project
+# 📝 To-Do App – Preliminary Assignment Submission  
 
-## Project info
+👀 Please Check **ASSIGNMENT.md** file in this repository for assignment requirements.  
 
-**URL**: https://lovable.dev/projects/a252df75-5cae-4288-ae91-69e5ff5b9f92
+---
 
-## How can I edit this code?
+## 🚀 Project Setup & Usage  
+How to install and run your project:  
 
-There are several ways of editing your application.
+```bash
+# 1. Clone repository
+git clone https://github.com/pre-intern/Assignment-Todolist.git
 
-**Use Lovable**
+cd Assignment-Todolist
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a252df75-5cae-4288-ae91-69e5ff5b9f92) and start prompting.
+# 2. Install dependencies
+npm install
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 3. Run in development
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+Deployed Web URL or APK file
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+✍️ [Paste your deployed web link or APK file here]
 
-**Use GitHub Codespaces**
+🎥 Demo Video
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Demo video link (≤ 2 minutes):
+✍️ [Paste your YouTube Unlisted video link here]
 
-## What technologies are used for this project?
+💻 Project Introduction
+a. Overview
 
-This project is built with:
+✍️ Đây là ứng dụng Study Flow Web giúp sinh viên quản lý công việc và nhiệm vụ hằng ngày, tập trung vào việc tối ưu thời gian học tập, làm việc nhóm và cá nhân. Ứng dụng đơn giản, trực quan, chạy trên nền web.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+b. Key Features & Function Manual
 
-## How can I deploy this project?
+✍️ Thêm nhiệm vụ (Add Task): nhập nội dung công việc và gán tag (ví dụ: học tập, công việc, cá nhân).
 
-Simply open [Lovable](https://lovable.dev/projects/a252df75-5cae-4288-ae91-69e5ff5b9f92) and click on Share -> Publish.
+✍️ Chỉnh sửa nhiệm vụ (Edit Task): cập nhật thông tin công việc.
 
-## Can I connect a custom domain to my Lovable project?
+✍️ Đánh dấu hoàn thành (Complete Task): tick ✅ để theo dõi tiến độ.
 
-Yes, you can!
+✍️ Xóa nhiệm vụ (Delete Task): loại bỏ nhiệm vụ không cần thiết.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+✍️Description (Optional): mô tả chi tiết task.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+✍️Category: dropdown (Class, Project, Work, Personal, …).
+
+✍️Priority: dropdown (Low / Medium / High).
+
+✍️Estimated Time (minutes): input số phút (vd: 30).
+
+✍️Deadline: picker thời gian + ngày.
+✍️Tags: chọn tag có sẵn hoặc thêm tag tùy chỉnh rồi click Add.
+
+✍️ Lưu trữ trên Supabase: dữ liệu bền vững, truy cập từ nhiều thiết bị.
+
+c. Unique Features (What’s special about this app?)
+
+✍️Kết hợp task management + focus mode + analytics trong 1 giao diện tối (dark, focus-first).
+
+✍️Tags + custom tags cho phép người dùng phân loại linh hoạt.
+
+✍️Analytics đơn giản nhưng hữu dụng: giúp xác định giờ hiệu quả nhất và tỷ lệ trì hoãn.
+
+d. Technology Stack and Implementation Methods
+
+Frontend: React + Vite + TypeScript
+
+Styling: Tailwind CSS
+
+Backend/Database: Supabase (PostgreSQL + Auth)
+
+Build Tool: Vite
+
+Version Control: Git + GitHub
+
+e. Service Architecture & Database structure (when used)
+
+✍️Architecture: Client (React) ↔ API (Supabase) ↔ Database (PostgreSQL).
+
+✍️Client (React) ↔ Supabase (Auth + Postgres)
+
+✍️DB schema (Postgres / Supabase) — table tasks
+
+🧠 Reflection
+a. If you had more time, what would you expand?
+
+✍️ Thêm lịch nhắc nhở (reminder calendar), thống kê biểu đồ (tasks hoàn thành theo tuần/tháng), và offline mode (localStorage sync).
+✍️Bảo mật keys
+
+✍️UX: Tag handling
+
+✍️Hiện UI cho phép custom tag → cần validate duplicate và giới hạn số tag.
+
+✍️Analytics độ tin cậy
+
+✍️Most Productive Hours dựa trên lịch sử nhỏ sẽ dễ bị lệch — cần threshold (ít nhất N tasks) trước khi hiển thị.
+
+✍️Offline / Sync
+
+✍️Cân nhắc caching tasks local để app vẫn dùng được tạm khi mất mạng, rồi sync khi reconnect.
+
+✍️Testing
+
+✍️Thêm unit tests cho logic tính toán analytics + E2E test flow tạo, chỉnh sửa, xóa task.
+
+b. If you integrate AI APIs more for your app, what would you do?
+
+✍️ Tích hợp AI Task Assistant: gợi ý cách ưu tiên công việc, phân loại tự động (Work/Study/Personal), và natural language input (người dùng chỉ cần gõ "Làm báo cáo 8h tối mai", hệ thống tự parse deadline + category).
+
+✅ Checklist
+
+ Code runs without errors
+
+ All required features implemented (add/edit/delete/complete tasks)
+
+ All ✍️ sections are filled
