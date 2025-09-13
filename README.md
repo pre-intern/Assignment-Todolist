@@ -24,7 +24,7 @@ npm run dev
 
 Deployed Web URL or APK file
 
-✍️ [Paste your deployed web link or APK file here]
+✍️ [https://assignment-todolist-bice.vercel.app/]
 
 🎥 Demo Video
 
