@@ -5,9 +5,9 @@
 ---
 
 ## 🚀 Project Setup & Usage  
-How to install and run your project:  
+How to install and run mymy project:  
 
-```bash
+```git bash
 # 1. Clone repository
 git clone https://github.com/pre-intern/Assignment-Todolist.git
 
@@ -29,7 +29,7 @@ Deployed Web URL or APK file
 🎥 Demo Video
 
 Demo video link (≤ 2 minutes):
-✍️ [https://youtu.be/RsATH5aSxpE]
+✍️ [https://youtu.be/Hcn_BwQUQWs]
 
 💻 Project Introduction
 a. Overview
