@@ -29,7 +29,7 @@ Deployed Web URL or APK file
 🎥 Demo Video
 
 Demo video link (≤ 2 minutes):
-✍️ [Paste your YouTube Unlisted video link here]
+✍️ [https://youtu.be/RsATH5aSxpE]
 
 💻 Project Introduction
 a. Overview
