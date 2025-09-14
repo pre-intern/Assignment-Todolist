@@ -54,7 +54,7 @@ b. Key Features & Function Manual
 
 ✍️Estimated Time (minutes): input số phút (vd: 30).
 
-✍️Deadline: picker thời gian + ngày.
+✍️Deadline: thời gian + ngày.
 ✍️Tags: chọn tag có sẵn hoặc thêm tag tùy chỉnh rồi click Add.
 
 ✍️ Lưu trữ trên Supabase: dữ liệu bền vững, truy cập từ nhiều thiết bị.
